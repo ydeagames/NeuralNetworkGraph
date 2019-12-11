@@ -37,6 +37,9 @@
 #include <locale> 
 #include <codecvt> 
 
+#include <thread>
+#include <future>
+
 #include <DxLib.h>
 
 #define EXIT_KEY (KEY_INPUT_ESCAPE)    // ã≠êßèIóπÉLÅ[

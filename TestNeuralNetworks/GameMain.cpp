@@ -68,38 +68,47 @@ void Game::Initialize()
 
 void Game::Update()
 {
-	int x, y;
-	GetMousePoint(&x, &y);
-	if (0 <= x && x < SCREEN_WIDTH)
+	if (!calculating)
 	{
-		if (GetMouseInput())
+		int x, y;
+		GetMousePoint(&x, &y);
+		if (0 <= x && x < SCREEN_WIDTH)
 		{
-			int srcX, srcY, dstX, dstY;
-			if (x < lastX)
-				srcX = x, dstX = lastX, srcY = y, dstY = lastY;
-			else
-				srcX = lastX, dstX = x, srcY = lastY, dstY = y;
-			for (int ix = srcX; ix < dstX; ix++)
+			if (GetMouseInput())
 			{
-				if (0 <= ix && ix < SCREEN_WIDTH)
+				int srcX, srcY, dstX, dstY;
+				if (x < lastX)
+					srcX = x, dstX = lastX, srcY = y, dstY = lastY;
+				else
+					srcX = lastX, dstX = x, srcY = lastY, dstY = y;
+				for (int ix = srcX; ix < dstX; ix++)
 				{
-					float t = float(ix - srcX) / float(dstX - srcX);
-					float iy = srcY + float(dstY - srcY) * t;
-					graph[ix] = iy;
+					if (0 <= ix && ix < SCREEN_WIDTH)
+					{
+						float t = float(ix - srcX) / float(dstX - srcX);
+						float iy = srcY + float(dstY - srcY) * t;
+						graph[ix] = iy;
+					}
 				}
 			}
+			lastX = x;
+			lastY = y;
 		}
-		lastX = x;
-		lastY = y;
-	}
 
-	bool key = GetJoypadInputState(DX_INPUT_KEY_PAD1) & PAD_INPUT_1;
-	static bool lastKey = key;
-	if (!lastKey && key)
-	{
-		Calculate();
+		bool key = GetJoypadInputState(DX_INPUT_KEY_PAD1) & PAD_INPUT_1;
+		static bool lastKey = key;
+		if (!lastKey && key)
+		{
+			calculating = true;
+
+			// 別スレッドで計算を行う
+			std::thread([&] {
+				Calculate();
+				calculating = false;
+				}).detach();
+		}
+		lastKey = key;
 	}
-	lastKey = key;
 }
 
 void Game::Render()
@@ -108,6 +117,12 @@ void Game::Render()
 	{
 		DrawLineAA(i, graph[i], i + 1, graph[i + 1], ColorCode::COLOR_WHITE);
 		DrawLineAA(i, aigraph[i], i + 1, aigraph[i + 1], ColorCode::COLOR_YELLOW);
+	}
+
+	if (calculating)
+	{
+		static float t = 0;
+		DrawStringF(0, 10 - abs(sin(t += .1f)) * 5, L"計算中", ColorCode::COLOR_LIME);
 	}
 }
 

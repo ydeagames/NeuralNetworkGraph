@@ -12,6 +12,7 @@ private:
 	int lastX, lastY;
 	std::vector<float> graph;
 	std::vector<float> aigraph;
+	bool calculating = false;
 
 public:
 	void Calculate();
