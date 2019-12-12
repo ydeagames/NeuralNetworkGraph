@@ -21,7 +21,7 @@ void Game::Calculate()
 	// Setup momentum
 	neuralNetwork.SetMomentum(true, 0.8);
 
-	double	error = 1.0;
+	error = 1.0;
 	int		count = 0;
 
 	// 機械学習する
@@ -115,8 +115,9 @@ void Game::Render()
 {
 	for (int i = 0; i < SCREEN_WIDTH - 1; i++)
 	{
-		DrawLineAA(i, graph[i], i + 1, graph[i + 1], ColorCode::COLOR_WHITE);
-		DrawLineAA(i, aigraph[i], i + 1, aigraph[i + 1], ColorCode::COLOR_YELLOW);
+		DrawLineAA(float(i), graph[i], float(i) + 1.f, graph[i + 1], ColorCode::COLOR_WHITE);
+		DrawLineAA(float(i), aigraph[i], float(i) + 1.f, aigraph[i + 1], ColorCode::COLOR_YELLOW);
+		DrawFormatStringF(0.f, 30.f, ColorCode::COLOR_LIME, L"エラー: %.2f%%", float(error) * 100.f);
 	}
 
 	if (calculating)

@@ -13,6 +13,7 @@ private:
 	std::vector<float> graph;
 	std::vector<float> aigraph;
 	bool calculating = false;
+	double error = 0;
 
 public:
 	void Calculate();
